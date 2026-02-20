@@ -3,12 +3,20 @@
 #include <linux/string.h>
 #include <linux/stat.h>
 
-static bool name_exists(struct vtfs_inode_info *p_info, const char *name) {
-    for (size_t i = 0; i < p_info->entries_count; i++) {
-        if (strcmp(p_info->entries[i].name, name) == 0)
-            return true;
-    }
-    return false;
+static bool is_file(struct vtfs_inode_info *p_info, const char *name) {
+  for (size_t i = 0; i < p_info->entries_count; i++) {
+    if (strcmp(p_info->entries[i].name, name) == 0 && p_info->entries[i].entry_type == DT_REG)
+    return true;
+  }
+  return false;
+}
+
+static bool is_dir(struct vtfs_inode_info *p_info, const char *name) {
+  for (size_t i = 0; i < p_info->entries_count; i++) {
+    if (strcmp(p_info->entries[i].name, name) == 0 && p_info->entries[i].entry_type == DT_DIR)
+    return true;
+  }
+  return false;
 }
 
 struct inode_operations vtfs_inode_ops = {
@@ -78,7 +86,7 @@ int vtfs_create(struct mnt_idmap *idmap, struct inode *parent_inode,
   if(!p_info) return -ENOENT;
   if(p_info->entries_count >= 100) return -ENOSPC;
 
-  if (name_exists(p_info, name)) return -EEXIST;
+  if (is_file(p_info, name)) return -EEXIST;
 
   new_ino = vtfs_allocate_inode(sb_info);
   if (new_ino < 0) return new_ino;
@@ -173,7 +181,7 @@ struct dentry *vtfs_mkdir(struct mnt_idmap *idmap, struct inode *parent_inode,
   int new_ino;
 
   if(!p_info) return (struct dentry*)ERR_PTR(-ENOENT);
-  if (name_exists(p_info, name)) return (struct dentry*)ERR_PTR(-EEXIST);
+  if (is_dir(p_info, name)) return (struct dentry*)ERR_PTR(-EEXIST);
   if(p_info->entries_count >= 100) return (struct dentry*)ERR_PTR(-ENOSPC);
 
   new_ino = vtfs_allocate_inode(sb_info);

@@ -18,7 +18,7 @@ struct entry {
   unsigned char entry_type;
   ino_t ino;
   char name[256];
-  struct inode* inode; /* Warning: this might be redundant if we use ino, but keeping for compatibility with existing code structure if accessed */
+  struct inode* inode;
 };
 
 struct vtfs_inode_info {
