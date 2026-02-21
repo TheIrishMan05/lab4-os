@@ -18,7 +18,7 @@ struct entry {
   unsigned char entry_type;
   ino_t ino;
   char name[256];
-  struct inode* inode; /* Warning: this might be redundant if we use ino, but keeping for compatibility with existing code structure if accessed */
+  struct inode* inode; 
 };
 
 struct vtfs_inode_info {
@@ -29,12 +29,12 @@ struct vtfs_inode_info {
     u64 nlink;
     ino_t ino;
     union {
-        struct { /* for directories */
+        struct { 
             struct entry entries[100];
             size_t entries_count;
             ino_t parent_ino;
         };
-        struct { /* for files */
+        struct { 
             char content[4096];
             u64 content_len;
         };
@@ -43,11 +43,10 @@ struct vtfs_inode_info {
 
 struct vtfs_sb_info {
     struct vtfs_inode_info inodes[MAX_INODE];
-    unsigned long valid_inodes[MAX_INODE / (sizeof(unsigned long) * 8) + 1]; /* bitmap */
+    unsigned long valid_inodes[MAX_INODE / (sizeof(unsigned long) * 8) + 1]; 
     spinlock_t lock;
 };
 
-/* Helper macros/functions */
 static inline struct vtfs_sb_info *VTFS_SB(struct super_block *sb) {
     return sb->s_fs_info;
 }

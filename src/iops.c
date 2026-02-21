@@ -250,8 +250,6 @@ int vtfs_rmdir(struct inode *parent_inode, struct dentry *child_dentry) {
       
       if (inode) {
          clear_nlink(inode);
-         /* Free the child directory inode */
-      /* Note: Deferred to evict_inode */
       }
 
       return 0;
