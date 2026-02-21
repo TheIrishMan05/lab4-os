@@ -11,6 +11,15 @@ static bool name_exists(struct vtfs_inode_info *p_info, const char *name) {
     return false;
 }
 
+static bool entry_exists(struct vtfs_inode_info *dir_info, const char *name, size_t len) {
+    for (size_t i = 0; i < dir_info->entries_count; i++) {
+        if (strlen(dir_info->entries[i].name) == len && strncmp(dir_info->entries[i].name, name, len) == 0)
+            return true;
+    }
+    return false;
+}
+
+
 struct inode_operations vtfs_inode_ops = {
   .lookup = vtfs_lookup,
   .create = vtfs_create,
@@ -144,7 +153,9 @@ int vtfs_link(struct dentry *old_dentry, struct inode *dir, struct dentry *dentr
     struct inode *inode = d_inode(old_dentry);
     struct vtfs_inode_info *dir_info = dir->i_private;
     struct vtfs_inode_info *inode_info = inode->i_private;
-    
+
+
+    if(entry_exists(dir_info, dentry->d_name.name, dentry->d_name.len)) return -EEXIST;
     if (!dir_info || !inode_info) return -ENOENT;
     if (dir_info->entries_count >= 100) return -ENOSPC;
     
